@@ -14,6 +14,8 @@ const ModelTable = ({data, callbackModel, modelSearch, chooseGroup, show}) => {
         callbackModel(pmodel)
     }
 
+    const gittest = "GIT TEST"
+
 
     const handleChange = (event) => {
         setShowAll(!showAll)
