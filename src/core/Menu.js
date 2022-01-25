@@ -22,6 +22,9 @@ const Menu = ({ history, path }) => {
                     <Link style={currentTab(history, "/model")} className="nav-link" to="/model">Model</Link>
                 </li>
                 <li className="nav-item">
+                    <Link style={currentTab(history, "/customer")} className="nav-link" to="/customer">Customer</Link>
+                </li>
+                <li className="nav-item">
                     <Link style={currentTab(history, "/signin")} className="nav-link" to="/signin">Signin</Link>
                 </li>
                 <li className="nav-item">
