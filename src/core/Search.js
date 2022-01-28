@@ -26,7 +26,7 @@ const Search = (props) => {
                 </select>
            </div>
             <div className="col-3 datasearch">
-                <input className="form-control" type="text" name="Search" onChange={ searchValue } placeholder="Search..." />
+                <input className="form-control" type="search" name="Search" onChange={ searchValue } placeholder="Search..." />
             </div>
         </div>
     )

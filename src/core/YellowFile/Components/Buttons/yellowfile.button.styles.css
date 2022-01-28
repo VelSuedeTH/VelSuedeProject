@@ -1,0 +1,7 @@
+.yellowfile-create-button, .yellowfile-goback-button, .yellowfile-save-button {
+    width: 12em;
+}
+
+.yellowfile-goback-button {
+    margin-bottom: 10px;
+}
