@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Base from '../../Base'
+import { getYellowFileCategory, getYellowFileTypeChange, getYellowFileTypeEffect,
+        getYellowFileStorage, getProductProcess } from '../apicalls';
 
+import { getCustomer, getModel } from '../../helper/coreapicalls'
 
 import '../yellowfile.style.css'
 import YellowFileButtonGoback from './Buttons/YellowFileButtonGoback';
@@ -8,26 +11,142 @@ import YellowfileButtonSave from './Buttons/YellowfileButtonSave';
 import YellowFileDropdown from './Dropdowns/YellowFileDropdown';
 
 
+
 const YellowFileForm = () => {
-  const [ categorys, setCategorys ] = useState([{ title: 'Category 1', list: ['Camera1', 'Camera2', 'Camera3']},
-                                                { title: 'Category 2', list: ['DirectFlocky1', 'DirectFlocky2', 'DirectFlocky3']},
-                                                { title: 'Category 3', list: ['Something1', 'Something2', 'Something3']}])
 
-  const [ ProductProcess, setProductProcess ] = useState([{ title: 'PP Thai', list: ['200 : Kohyai-Zipper Hong Khong Limited', 'Something2', 'Something3']},
-                                                { title: 'PP1', list: ['00 : VSTK SuperCut', 'Something2', 'Something3']},
-                                                { title: 'PP2', list: ['0 : VSTK Check', 'Something2', 'Something3']}])
+  const [ categorys, setCategorys ] = useState([])
+  const [ customers, setCustomers ] = useState([])
+  const [ models, setModels ] = useState([])
+  const [ ppThai, setPPThai ] = useState([])
+  const [ checks, setChecks ] = useState([])
+  const [ yellowfileTypeChange, setYellowFileTyepChange ] = useState([])
+  const [ yellowfileTypeEffect, setYellowFileTyepEffect ] = useState([])
+  const [ yellowfileStorage, setYellowFileStorage ] = useState([])
 
-  const [ checks, setChecks ] = useState([{ title: 'C1', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C2', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C3', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C4', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C5', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C6', list: [0, 1, 2, 3, 4, 5]},
-                                          { title: 'C7', list: [0, 1, 2, 3, 4, 5]},])
-
-  const [ YellowFile, setYellowFile ] = useState({
-
+  const [values, setValues ] = useState({
+    PPThai : '1'
   })
+
+  const { PPThai } = values;
+
+  const selectPPThai = (event) => {
+    setValues({...values, PPThai: event}, console.log(values))
+  }
+
+
+  const checkLists = () => {
+    const checkCode = [...Array(6)].map((e, i) => ({id: i, name : i}))
+    setChecks([...Array(7)].map((e, i) => ({ key: `c-${i + 1}`, titleName: `C${i + 1} :`, cateList: checkCode })))
+  }  
+
+  const loadCate = () => {
+    getYellowFileCategory()
+    .then(data => {
+        if (data.error) {
+            console.log(data.error);
+        } else {
+          const [cateName, cateName2, cateName3] = [data.filter(v => v.CateGroup === '1').map(v => ({id: v.id, name : v.CateName})),
+                                                    data.filter(v => v.CateGroup === '2').map(v => ({id: v.id, name : v.CateName})),
+                                                    data.filter(v => v.CateGroup === '3').map(v => ({id: v.id, name : v.CateName}))]
+          setCategorys([{key: 'category1', titleName: 'Category 1 :', cateList: cateName},
+                        {key: 'category2', titleName: 'Category 2 :', cateList: cateName2},
+                        {key: 'category3', titleName: 'Category 3 :', cateList: cateName3}])
+        }
+    })
+  }
+
+
+  const loadYFTypeChange = () => {
+    getYellowFileTypeChange()
+    .then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          const typeChange = data.map(t => ({id: t.YFCngTypeCode, name: t.YFCngTypeName}))
+          setYellowFileTyepChange({titleName: 'Registration Type :', cateList: typeChange})
+        }
+    })
+  }
+
+
+  const loadProductProcess = () => {
+    getProductProcess()
+    .then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          const ppth = data.map(pp => ({id: pp.id, name: `${pp.PPThaiCode} : ${pp.PPThaiName}`}))
+          setPPThai({titleName: 'PP Thai :', cateList: ppth})
+        }
+    })
+  }
+
+  
+  const loadYFTypeEffect = () => {
+    getYellowFileTypeEffect()
+    .then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          const typeEffect = data.map(t => ({id: t.YFCngEffectTypeCode, name: t.YFCngEffectTypeName}))
+          setYellowFileTyepEffect({titleName: 'Registration reflect Method :', cateList: typeEffect})
+        }
+    })
+  }
+
+
+  const loadYFStorage = () => {
+    getYellowFileStorage()
+    .then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          const [ yfStorage, apqfStorage] = [data.filter(s => s.StorageType === 'YellowFile').map(s => ({id: s.StorageName, name: s.StorageName})),
+                                            data.filter(s => s.StorageType === 'APQFile').map(s => ({id: s.StorageName, name: s.StorageName}))]
+          setYellowFileStorage([{key: 'yellowfile-storage', titleName: 'Yellow File Storage :', cateList: yfStorage},
+                                  {key: 'apq-storage', titleName: 'APQ File Storage :', cateList: apqfStorage}])
+        }
+    })
+  }
+
+
+  const loadCustomer = () => {
+    getCustomer()
+    .then(data => {
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        const cus = data.map(c => ({id: c.id, name : `${c.CustomerCode} : ${c.CustomerName}`}))
+        setCustomers([{titleName: 'Customer :', cateList: cus}])
+      }
+    })
+  }
+
+  const loadModel = () => {
+    getModel()
+    .then(data => {
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        const model = data.map(m => ({id: m.ModelCode, name : `${m.ModelCode} : ${m.ModelName}`}))
+        setModels({titleName: 'Model :', cateList: model})
+      }
+    })
+  }
+
+  useEffect(() => {
+    return (
+        checkLists(),
+        loadCate(),
+        loadCustomer(),
+        loadYFTypeChange(),
+        loadYFTypeEffect(),
+        loadYFStorage(),
+        loadModel(),
+        loadProductProcess()
+    )
+  }, [])
+
 
   return (
     <Base title="Yellow File Index" desc="Vel-Suede Yellow File System">
@@ -81,7 +200,13 @@ const YellowFileForm = () => {
                   <h5 className='yellowfile-header-form'>Customer</h5>
                   <hr />
                   <div className="padding-group-group">
-                    <YellowFileDropdown title="Customer :" list={ ["700 : NIKON", "702 : ASIAN", "703 : SONY"] } />
+                    <div className="row">
+                    { customers.map( c => (
+                      <div className="col-6">
+                        <YellowFileDropdown key='yellowfile-customers' titleName={ c['titleName'] } cateList={ c['cateList'] } />
+                      </div>
+                    ))}
+                    </div>
                   </div>
                 </div>
                 <div className='col'>
@@ -90,7 +215,7 @@ const YellowFileForm = () => {
                   <div className="padding-group-group">
                     <div className="row">
                       <div className="col">
-                        <YellowFileDropdown title="Model :" list={ ["1 : A4-40221-01", "2 : Q1990", "3 : Q5991"] } />
+                        <YellowFileDropdown key='yellowfile-model' titleName={ models['titleName'] } cateList={ models['cateList'] } />
                       </div>
                     </div>
                     <div className="row">
@@ -115,20 +240,24 @@ const YellowFileForm = () => {
                   <h5 className='yellowfile-header-form'>Category</h5>
                   <hr />
                   <div className="padding-group-group">
-                    {/* Category Dropdown */}
-                    {categorys.map(c => (
-                      <YellowFileDropdown title={ c['title'] } list={ c['list'] } />
+                  <div className="row">
+                    { categorys.map(c => (
+                        <div className="col-6">
+                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } />
+                        </div>
                     ))}
+                    </div>
                   </div>
                 </div>
                 <div className='col'>
                   <h5 className='yellowfile-header-form'>Produce Process</h5>
                   <hr />
                   <div className="padding-group-group">
-                    {/* Product Process Dropdown */}
-                    {ProductProcess.map(pp => (
-                      <YellowFileDropdown title={ pp['title'] } list={ pp['list'] } />
-                    ))}
+                    <div className="row">
+                      <div className="col">
+                        <YellowFileDropdown key='yellowfile-model' titleName={ ppThai['titleName'] } cateList={ ppThai['cateList'] } selected={ selectPPThai } />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -138,12 +267,11 @@ const YellowFileForm = () => {
                   <hr />
                   <div className='padding-group-group'>
                     <div className="row">
-                      {/* C# Dropdown */}
-                      {checks.map(c => (
-                        <div className="col-6">
-                          <YellowFileDropdown title={ c['title'] } list={ c['list'] } />
-                        </div>
-                      ))}
+                        { checks.map( c => (
+                          <div className="col-3">
+                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } />
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -154,12 +282,11 @@ const YellowFileForm = () => {
                       <hr />
                       <div className='padding-group-group'>
                         <div className="row">
-                          <div className="col">
-                            <YellowFileDropdown title="Yellow File Storage" list={ ["A-1", "A-2", "A-3"] } />
+                        { yellowfileStorage.map( s => (
+                          <div className="col-6">
+                            <YellowFileDropdown key={ s['key'] } titleName={ s['titleName'] } cateList={ s['cateList'] } />
                           </div>
-                          <div className="col">
-                            <YellowFileDropdown title="APQ File Storage" list={ ["APQ-1", "APQ-2", "APQ-3"] } />
-                          </div>
+                        ))}
                         </div>
                       </div>
                     </div>
@@ -171,10 +298,10 @@ const YellowFileForm = () => {
                       <div className='padding-group-group'>
                         <div className="row">
                           <div className="col-6">
-                            <YellowFileDropdown title="Registration Type" list={ ["NewRegistration", "Something", "Something2"] } />
+                            <YellowFileDropdown key='regis-type' titleName={ yellowfileTypeChange['titleName'] } cateList={ yellowfileTypeChange['cateList'] } />
                           </div>
                           <div className="col-6">
-                            <YellowFileDropdown title="Registration Reflect Method" list={ ["Immediately", "Something", "Something2"] } />
+                            <YellowFileDropdown key='regis-effect' titleName={ yellowfileTypeEffect['titleName'] } cateList={ yellowfileTypeEffect['cateList'] } />
                           </div>
                           <div className="col-6">
                             <label htmlFor="registration-reflect-date">
@@ -194,7 +321,7 @@ const YellowFileForm = () => {
                   <hr />
                   <div className="row">
                     <div className="col">
-                      <YellowFileDropdown title="Status :" list={ ["Continue", "Something", "Something2"] } />
+                      {/* <YellowFileDropdown title="Status :" list={ ["Continue", "Something", "Something2"] } /> */}
                     </div>
                     <div className="col"></div>
                   </div>
