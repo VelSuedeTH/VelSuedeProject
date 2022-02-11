@@ -6,6 +6,7 @@ const YellowFileDropdown = ({ titleName, cateList, selected }) => {
     const selectedValue = (event) => {
         event.preventDefault()
         selected(event.target.value)
+        // console.log(event.target.value)
     }
     
   return (
@@ -13,6 +14,7 @@ const YellowFileDropdown = ({ titleName, cateList, selected }) => {
         <label for="category-dropdown">{ titleName }</label>
 
         <select class="form-control" id="category-dropdown" onChange={ selectedValue }> 
+            <option value="-">-</option>
             { cateList?.map(choice => (
                 <option value={ choice.id }>{ choice.name }</option>
             ))}
