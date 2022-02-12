@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import Base from '../Base'
 import YellowFileButtonCreate from './Components/Buttons/YellowFileButtonCreate'
-
+import YellowFileTable from './Components/YellowFileTable'
 
 
 import './yellowfile.style.css'
@@ -36,6 +36,9 @@ const YellowFilePage = () => {
                 </div>
             </div>
             <hr />
+            <div>
+                <YellowFileTable />
+            </div>
         </Base>
     )
 }

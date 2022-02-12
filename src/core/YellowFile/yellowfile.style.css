@@ -9,3 +9,13 @@
 .padding-group-group {
     padding: 0 2em 0 2em;
 }
+
+.table-responsive {
+    max-width: 120em;
+    max-height: 50em;
+    overflow: scroll;
+}
+
+td {
+    white-space: nowrap;
+}

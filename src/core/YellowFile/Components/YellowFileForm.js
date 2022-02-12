@@ -59,8 +59,7 @@ const YellowFileForm = () => {
   })
 
   const { FCode, ItemNum, ItemName, Model, Customer,
-          UsageQty, YellowFileRemark, PCode, SeqID,
-          C1, C2, C3, C4, C5, C6, C7 } = values;
+          UsageQty, YellowFileRemark, PCode, SeqID } = values;
 
   const handleChange = (name) =>
     (event) => {
