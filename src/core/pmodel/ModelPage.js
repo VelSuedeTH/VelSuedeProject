@@ -80,7 +80,7 @@ export default function ModelPage() {
     useEffect(() => {
         return (
             loadAllModel()
-        )        
+        )
     }, [])
 
 

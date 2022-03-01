@@ -81,3 +81,40 @@ export const createNewYellowFile = (userId, token, data) => {
       .catch((err) => console.log(err));
   };
 
+
+// Revice Yellow File
+export const reviceYellowFile = (userId, token, data) => {
+    const formData = new FormData();
+
+    for (const name in data) {
+        formData.append(name, data[name])
+    }
+    console.log(formData);
+    return fetch(`${API}yellowfile/yellow_file/revice_yellowfile/${userId}/${token}/`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .catch((err) => console.log(err));
+  };
+
+
+export const removeYellowFile = (userId, token, yellowFile) => {
+    const formData = new FormData();
+    console.log(yellowFile);
+
+    for (const name in yellowFile) {
+        formData.append(name, yellowFile[name])
+    }
+    
+    return fetch(`${API}yellowfile/yellow_file/remove_yellowfile/${userId}/${token}/`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .catch((err) => console.log(err));
+  };

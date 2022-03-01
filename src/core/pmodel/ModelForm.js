@@ -4,6 +4,7 @@ import ReactTooltip from "react-tooltip";
 
 import { faFileDownload, faSave, faSync, faEdit, faChalkboard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { getCustomer, createNewModel, reviceModel, updateModel } from '../helper/coreapicalls';
 import { isAuthenticated } from '../../auth/helper';
 import moment from 'moment';
@@ -99,7 +100,7 @@ const ModelForm = ({ selectModel, pmodels, dataSearch, searchMode }) => {
 
     const exportCSV = () => {
         // const data = []
-        console.log(pmodels);
+        // console.log(pmodels);
         
         const data = dataList.filter(p => String(p[searchMode]).toLowerCase().includes(dataSearch)).map(p => {
             if (typeof(p.UpStreamCustCode) === 'string') {

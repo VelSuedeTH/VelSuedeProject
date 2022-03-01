@@ -17,9 +17,9 @@ const Routes = () => {
                 <Route path="/signin" component={Signin} />
                 <Route path="/yellowfile" component={YellowFilePage} />
                 <Route path="/yellowfile-form1" component={YellowFileForm} />
+                <Route path="/yellowfile-form1/<int:id>/" component={YellowFileForm} />
                 <Route path="/model" component={ModelPage} />
                 <Route path="/customer" component={CustomerPage} />
-                
 
                 <PrivateRoutes path="/" exact component={Home} />
             </Switch>

@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { getYellowFileIndex } from '../apicalls';
+import { Link } from 'react-router-dom'
 import Moment from 'moment';
 
 import '../yellowfile.style.css'
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
-const YellowFileTable = () => {
-  const [yellowfiles, setYellowFiles] = useState([])
+const YellowFileTable = ({ data, search, callbackdata }) => {
+  const yellowfiles = data
 
-  const loadYellowFile = () => {
-    getYellowFileIndex()
-    .then(data => {
-        if (data.error) {
-          console.log(data.error);
-        } else {
-          console.log(data)
-          setYellowFiles(data)
-        }
-    })
+  // const loadYellowFile = () => {
+  //   getYellowFileIndex()
+  //   .then(data => {
+  //       if (data.error) {
+  //         console.log(data.error);
+  //       } else {
+  //         console.log(data)
+  //         setYellowFiles(data)
+  //       }
+  //   })
+  // }
+
+  const callback = (event) => {
+    callbackdata(yellowfiles.filter(y => String(search.choice !== "Model"?y[search.choice] : y.PCode.ModelCode.ModelName).toLowerCase().includes(search.data_search.toLowerCase())).map((y => y)))
   }
 
+  // useEffect(() => {
+  //   loadYellowFile()
+  // }, [])
+
   useEffect(() => {
-    loadYellowFile()
-  }, [])
+    callback()
+  }, [search])
 
   return (
       <div>
@@ -63,10 +74,10 @@ const YellowFileTable = () => {
             </tr>
         </thead>
         <tbody>
-            { yellowfiles.map((yellowfile, index) => {
+            { yellowfiles.filter(y => String(search.choice !== "Model"?y[search.choice] : y.PCode.ModelCode.ModelName).toLowerCase().includes(search.data_search.toLowerCase())).map((yellowfile, index) => {
               return (
                 <tr key={index}>
-                  <td scope="row">{ index + 1}</td>
+                  <td scope="row"><Link to={ {pathname: `/yellowfile-form1/${ yellowfile.id }`, state: yellowfile} }><FontAwesomeIcon color="gray" icon={ faPenToSquare } /></Link></td>
                   <td className="text-center">{ yellowfile.PCode.PCode }</td>
                   <td className="text-center">{ yellowfile.SeqCode }</td>
                   <td>{ yellowfile.FCode }</td>
@@ -74,7 +85,7 @@ const YellowFileTable = () => {
                   <td>{ yellowfile.PCode.ModelCode.ModelName }</td>
                   <td>{ yellowfile.ItemNum }</td>
                   <td>{ yellowfile.ItemName }</td>
-                  <td>{ yellowfile.Status }</td>
+                  <td>{ yellowfile.Status }</td> 
                   <td>{ yellowfile.Cate1.CateName }</td>
                   <td>{ yellowfile.Cate2.CateName }</td>
                   <td>{ yellowfile.Cate3.CateName }</td>

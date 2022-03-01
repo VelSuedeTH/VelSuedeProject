@@ -9,10 +9,12 @@ import '../yellowfile.style.css'
 import YellowFileButtonGoback from './Buttons/YellowFileButtonGoback';
 import YellowfileButtonSave from './Buttons/YellowfileButtonSave';
 import YellowFileDropdown from './Dropdowns/YellowFileDropdown';
+import Moment from 'moment';
+import ConfirmAlert from './PopupAlert/ConfirmAliert';
 
 
 
-const YellowFileForm = () => {
+const YellowFileForm = (props) => {
 
   const [ categorys, setCategorys ] = useState([])
   const [ customers, setCustomers ] = useState([])
@@ -27,39 +29,61 @@ const YellowFileForm = () => {
   const [ yellowfileTypeEffect, setYellowFileTyepEffect ] = useState([])
   const [ yellowfileStorage, setYellowFileStorage ] = useState([])
   const [ yellowFile, setYellowFile] = useState([])
+  const [ editStatus, setEditStatus ] = useState(false)
+
+  const yellowdata = props.location.state
+  // console.log(yellowdata);
 
   const [values, setValues ] = useState({
-    Customer: "",
-    FCode: "",
-    ItemNum: "",
-    ItemName: "",
-    Model: "",
-    PPThai : '1',
-    PCode: 1,
-    RegisEffect: '',
-    RegisType: '',
-    UsageQty: 0,
-    SeqID: 0,
-    YellowFileRemark: '',
-    APQStorage: '',
-    C1: 0,
-    C2: 0,
-    C3: 0,
-    C4: 0,
-    C5: 0,
-    C6: 0,
-    C7: 0,
-    category1: '',
-    category2: '',
-    category3: '',
-    pp1: '',
-    pp2: '',
-    status: '',
-    YFStorage: '',
+    Customer: yellowdata?`${yellowdata?.PCode.ModelCode.UpStreamCustCode.CustomerCode} : ${ yellowdata?.PCode.ModelCode.UpStreamCustCode.CustomerName }`: "",
+    FCode: yellowdata?.FCode,
+    ItemNum: yellowdata?.ItemNum,
+    ItemName: yellowdata?.ItemName,
+    Model: yellowdata?.PCode.ModelCode.ModelCode,
+    PPThai : yellowdata?.PPThai.id,
+    PCode: yellowdata?.PCode.PCode,
+    RegisEffect: yellowdata?.YFCngEffectType.YFCngEffectTypeCode ,
+    RegisType: yellowdata?.YFCngType.YFCngTypeCode,
+    UsageQty: yellowdata?.PCode.Usage,
+    SeqID: yellowdata?.SeqCode,
+    YellowFileRemark: yellowdata?.Remarks,
+    APQStorage: yellowdata?.APQStorage.StorageName,
+    C1: yellowdata?.C1,
+    C2: yellowdata?.C2,
+    C3: yellowdata?.C3,
+    C4: yellowdata?.C4,
+    C5: yellowdata?.C5,
+    C6: yellowdata?.C6,
+    C7: yellowdata?.C7,
+    category1: yellowdata?.Cate1.id,
+    category2: yellowdata?.Cate2.id,
+    category3: yellowdata?.Cate3.id,
+    pp1: yellowdata?.PP1.id,
+    pp2: yellowdata?.PP2.id,
+    YellowFileStatus: yellowdata?.Status,
+    YFStorage: yellowdata?.YFStorage.StorageName,
+    YFCngEffectDate: Moment(yellowdata?.YFCngEffectType.AbolishDate).format('yyyy-MM-DD')
   })
 
   const { FCode, ItemNum, ItemName, Model, Customer,
-          UsageQty, YellowFileRemark, PCode, SeqID } = values;
+          UsageQty, YellowFileRemark, PCode, SeqID,
+          category1, category2, category3,
+          PPThai, pp1, pp2, C1, C2, C3, C4, C5, C6, C7,
+          YFStorage, APQStorage, RegisEffect, RegisType,
+          YellowFileStatus, YFCngEffectDate } = values;
+
+  const [modalDialog, setModalDialog] = useState({
+                                                    show: false,
+                                                    title: "",
+                                                    data: [],
+                                                    mode: ""
+                                                })
+
+
+  const confirmDialog = (event) => {
+      setModalDialog({show: event})
+  }
+
 
   const handleChange = (name) =>
     (event) => {
@@ -81,6 +105,7 @@ const YellowFileForm = () => {
 
   const selectPPThai = (event) => {
     setValues({...values, PPThai: event})
+    console.log(subPP)
     
     const subpp = allPPValue.filter(pp => pp.PPThaiCode === event).map(pp => ({id: pp.id, name: `${pp.PP1Code} : ${pp.PP1Name}`}))
           setSubPP([{key: 'pp1', titleName: 'PP 1 :', cateList: subpp},
@@ -89,6 +114,7 @@ const YellowFileForm = () => {
 
 
   const selected = (name) => (event) => {
+    console.log(name, event);
     setValues({...values, [name]: event })
   }
 
@@ -101,7 +127,7 @@ const YellowFileForm = () => {
 
   const yellowfileStatus = () => {
     const yfstatus = [{id: 'Continue', name : 'Continue'},
-                      {id: 'Something1', name : 'Something1'},
+                      {id: 'Discontinue', name : 'Discontinue'},
                       {id: 'Something2', name : 'Something2'}]
     setStatus({ key: `yellowfile-status`, titleName: `Status`, cateList: yfstatus })
   }
@@ -224,6 +250,7 @@ const YellowFileForm = () => {
   }
 
   useEffect(() => {
+
     return (
         checkLists(),
         loadCate(),
@@ -233,12 +260,16 @@ const YellowFileForm = () => {
         loadModel(),
         loadProductProcess(),
         yellowfileStatus(),
-        loadYellowFile()
+        loadYellowFile(),
+        setEditStatus( yellowdata? true : false)
+        // YellowfileToForm()
     )
   }, [])
 
   useEffect(() => {
     return (
+      !yellowFile.length? console.log(true)
+      :
       setValues({...values,
       Model: Model,
       PCode: usages? usages.PCode : 0,
@@ -249,10 +280,19 @@ const YellowFileForm = () => {
 
   useEffect(() => {
     const seq = yellowFile.filter(s => s.PCode.PCode === PCode).map(s => Number(s.SeqCode))
+    // console.log(yellowFile);
     return (
+      yellowFile.length? 
+      yellowdata.PCode.id === Number(PCode)?
       setValues({...values,
-        SeqID: !seq ? 1 : Math.max([...seq]) + 1
+        SeqID: yellowdata.SeqCode
         })
+        :
+        setValues({...values,
+          SeqID: !seq ? 1 : Math.max(...seq) + 1
+          })
+      :
+      console.log('yellowdata : ', yellowdata)
     )
   }, [PCode])
 
@@ -266,7 +306,11 @@ const YellowFileForm = () => {
         <div className="card mx-5">
           <form>
             <div className="card-body card-yellowfile-form">
-              <h3>Creact New Yellow File</h3>
+              { !yellowdata?
+                <h3>Creact New Yellow File</h3>
+              :
+                <h3>{ `FCode : ${yellowdata?.FCode} (Item Name : ${ yellowdata?.ItemName })` }</h3>
+              }
               <hr />
               <div className="row mt-5">
                 <div className="col">
@@ -325,7 +369,7 @@ const YellowFileForm = () => {
                   <div className="padding-group-group">
                     <div className="row">
                       <div className="col">
-                        <YellowFileDropdown key='yellowfile-model' titleName={ models['titleName'] } cateList={ models['cateList'] } selected={ selectedModel } />
+                        <YellowFileDropdown key='yellowfile-model' titleName={ models['titleName'] } cateList={ models['cateList'] } selected={ selectedModel } value={ Model } />
                       </div>
                     </div>
                     <div className="row">
@@ -353,7 +397,10 @@ const YellowFileForm = () => {
                   <div className="row">
                     { categorys.map(c => (
                         <div className="col-6">
-                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } selected={ selected(c['key']) } />
+                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } selected={ selected(c['key']) }
+                          value={ c['key'] === 'category1'? category1
+                          : c['key'] === 'category2'? category2
+                          : category3} />
                         </div>
                     ))}
                     </div>
@@ -365,13 +412,15 @@ const YellowFileForm = () => {
                   <div className="padding-group-group">
                     <div className="row">
                       <div className="col">
-                        <YellowFileDropdown key={ ppThai['key'] } titleName={ ppThai['titleName'] } cateList={ ppThai['cateList'] } selected={ selectPPThai } />
+                        <YellowFileDropdown key={ ppThai['key'] } titleName={ ppThai['titleName'] } cateList={ ppThai['cateList'] } selected={ selectPPThai }
+                        value={ PPThai } />
                       </div>
                     </div>
                     <div className="row">
                       { subPP.map(pp => (
                         <div className="col">
-                          <YellowFileDropdown key={ pp['key'] } titleName={ pp['titleName'] } cateList={ pp['cateList'] } selected={ selected(pp['key']) } />
+                          <YellowFileDropdown key={ pp['key'] } titleName={ pp['titleName'] } cateList={ pp['cateList'] } selected={ selected(pp['key']) }
+                          value={ pp['key'] === 'pp1'? pp1 : pp2 } />
                         </div>
                         ))}
                     </div>
@@ -386,7 +435,14 @@ const YellowFileForm = () => {
                     <div className="row">
                         { checks.map( c => (
                           <div className="col-3">
-                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } selected={ selected(c['key']) } />
+                          <YellowFileDropdown key={ c['key'] } titleName={ c['titleName'] } cateList={ c['cateList'] } selected={ selected(c['key']) }
+                          value={ c['key'] === 'C1'? C1
+                          :c['key'] === 'C2'? C2
+                          :c['key'] === 'C3'? C3
+                          :c['key'] === 'C4'? C4
+                          :c['key'] === 'C5'? C5
+                          :c['key'] === 'C6'? C6
+                          :C7 } />
                           </div>
                         ))}
                     </div>
@@ -401,7 +457,8 @@ const YellowFileForm = () => {
                         <div className="row">
                         { yellowfileStorage.map( s => (
                           <div className="col-6">
-                            <YellowFileDropdown key={ s['key'] } titleName={ s['titleName'] } cateList={ s['cateList'] } selected={ selected(s['key']) } />
+                            <YellowFileDropdown key={ s['key'] } titleName={ s['titleName'] } cateList={ s['cateList'] } selected={ selected(s['key']) }
+                            value={ s['key'] === 'YFStorage'? YFStorage : APQStorage } />
                           </div>
                         ))}
                         </div>
@@ -415,15 +472,15 @@ const YellowFileForm = () => {
                       <div className='padding-group-group'>
                         <div className="row">
                           <div className="col-6">
-                            <YellowFileDropdown key='regis-type' titleName={ yellowfileTypeChange['titleName'] } cateList={ yellowfileTypeChange['cateList'] } selected={ selected('RegisType') } />
+                            <YellowFileDropdown key='regis-type' titleName={ yellowfileTypeChange['titleName'] } cateList={ yellowfileTypeChange['cateList'] } selected={ selected('RegisType') } value={ RegisType } />
                           </div>
                           <div className="col-6">
-                            <YellowFileDropdown key='regis-effect' titleName={ yellowfileTypeEffect['titleName'] } cateList={ yellowfileTypeEffect['cateList'] } selected={ selected('RegisEffect') } />
+                            <YellowFileDropdown key='regis-effect' titleName={ yellowfileTypeEffect['titleName'] } cateList={ yellowfileTypeEffect['cateList'] } selected={ selected('RegisEffect') } value={ RegisEffect } />
                           </div>
                           <div className="col-6">
                             <label htmlFor="registration-reflect-date">
                               Registration Reflect Date
-                              <input className="form-control" type="date" name="registration-reflect-date" />
+                              <input className="form-control" type="date" name="YFCngEffectDate" value={ YFCngEffectDate } onChange={ handleChange("YFCngEffectDate") } />
                             </label>
                           </div>
                         </div>
@@ -438,24 +495,29 @@ const YellowFileForm = () => {
                   <hr />
                   <div className="row">
                     <div className="col">
-                      <YellowFileDropdown key='yellowfile-status' titleName={ status['titleName'] } cateList={ status['cateList'] } selected={ selected('status') } />
+                      <YellowFileDropdown key='yellowfile-status' titleName={ status['titleName'] } cateList={ status['cateList'] } selected={ selected('YellowFileStatus') } value={ YellowFileStatus } />
                     </div>
                     <div className="col"></div>
                   </div>
                 </div>
-                <div className="col padding-group-group">
-                      <label for="YellowFileRemark">Remark :</label>
-                      <textarea className="form-control" id="modelRemark" rows="4" name='YellowFileRemark' value={ YellowFileRemark } onChange={ handleChange("YellowFileRemark") }></textarea>
+                <div className="col">
+                  <h5 className='yellowfile-header-form'>Remark</h5>
+                  <hr />
+                  <div className="col padding-group-group">
+                    <label for="YellowFileRemark">Remark :</label>
+                    <textarea className="form-control" id="modelRemark" rows="4" name='YellowFileRemark' value={ YellowFileRemark } onChange={ handleChange("YellowFileRemark") }></textarea>
                   </div>
                 </div>
+              </div>
               <hr className='mt-5' />
               <div className="row justify-content-end">
                 <div className="col text-right">
-                  <YellowfileButtonSave data={ values } gobackpath={ '/yellowfile' } />
+                  <YellowfileButtonSave data={ values } editStatus={ editStatus } show={ confirmDialog } />
                 </div>
               </div>
             </div>
           </form>
+          <ConfirmAlert show={ modalDialog.show } close={ confirmDialog } />
         </div>
     </Base>
   )
