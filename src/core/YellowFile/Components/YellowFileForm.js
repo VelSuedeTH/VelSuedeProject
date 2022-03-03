@@ -282,17 +282,20 @@ const YellowFileForm = (props) => {
     const seq = yellowFile.filter(s => s.PCode.PCode === PCode).map(s => Number(s.SeqCode))
     // console.log(yellowFile);
     return (
-      yellowFile.length? 
-      yellowdata.PCode.id === Number(PCode)?
-      setValues({...values,
-        SeqID: yellowdata.SeqCode
-        })
-        :
+      // console.log(yellowFile.length),
+      yellowdata? 
+        yellowdata.PCode.id === Number(PCode)?
         setValues({...values,
-          SeqID: !seq ? 1 : Math.max(...seq) + 1
+          SeqID: yellowdata.SeqCode
           })
+          :
+          setValues({...values,
+            SeqID: !seq ? 1 : Math.max(...seq) + 1
+            })
       :
-      console.log('yellowdata : ', yellowdata)
+      setValues({...values,
+        SeqID: !seq ? 1 : Math.max(...seq) + 1
+        })
     )
   }, [PCode])
 
